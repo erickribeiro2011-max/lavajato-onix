@@ -10,23 +10,31 @@
 body{
 margin:0;
 font-family:Arial;
-background:#ffffff;
+background:#f4f4f4;
 }
 
 header{
 background:#d10000;
 color:white;
-padding:25px;
+padding:20px;
 text-align:center;
-font-size:32px;
+font-size:30px;
 font-weight:bold;
-box-shadow:0 2px 5px rgba(0,0,0,0.2);
+position:relative;
+}
+
+.menu{
+position:absolute;
+right:20px;
+top:20px;
+cursor:pointer;
+font-size:25px;
 }
 
 .container{
-padding:20px;
 max-width:900px;
 margin:auto;
+padding:20px;
 }
 
 .card{
@@ -35,33 +43,37 @@ padding:20px;
 margin-top:20px;
 border-radius:10px;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
+text-align:center;
 }
 
 button{
 background:#d10000;
 color:white;
 border:none;
-padding:12px 20px;
-margin:5px;
+padding:12px 25px;
+margin:10px;
 border-radius:8px;
 font-size:16px;
 cursor:pointer;
 }
 
-button:hover{
-background:#a00000;
-}
+#agenda{display:none;}
 
 #horarios button{
-width:100px;
+display:block;
+margin:10px auto;
+width:200px;
 }
 
-footer{
-background:#d10000;
-color:white;
-text-align:center;
-padding:15px;
-margin-top:30px;
+input{
+padding:10px;
+margin:5px;
+width:80%;
+}
+
+#adminPanel{
+display:none;
+text-align:left;
 }
 
 </style>
@@ -71,14 +83,26 @@ margin-top:30px;
 <body>
 
 <header>
+
 Lava Jato Ônix
+
+<div class="menu" onclick="abrirAdmin()">
+⋮
+</div>
+
 </header>
 
 <div class="container">
 
 <div class="card">
 
-<h2>Agendar Horário</h2>
+<h2>Agendamento</h2>
+
+<button onclick="abrirAgenda()">
+AGENDAR
+</button>
+
+<div id="agenda">
 
 <input type="date" id="data">
 
@@ -86,51 +110,69 @@ Lava Jato Ônix
 
 </div>
 
-<div class="card">
+</div>
 
-<h2>Contato</h2>
 
-<button onclick="whatsapp()">
-WhatsApp
-</button>
+<div class="card" id="adminPanel">
+
+<h2>Painel Administração</h2>
+
+<div id="lista"></div>
 
 </div>
 
 </div>
 
-<footer>
-
-© Lava Jato Ônix
-
-</footer>
 
 <script>
 
-let agendamentos = [];
+let senha="I8i82022@2023";
+
+let agendamentos=
+JSON.parse(localStorage.getItem("agenda"))||[];
+
+
+function abrirAgenda(){
+
+document.getElementById("agenda").style.display="block";
+
+}
+
 
 document.getElementById("data").addEventListener("change", mostrarHorarios);
 
+
 function mostrarHorarios(){
 
-let div = document.getElementById("horarios");
+let data=
+new Date(document.getElementById("data").value);
+
+let dia=data.getDay();
+
+let inicio=(dia==6)?8:12;
+
+let fim=17;
+
+let div=document.getElementById("horarios");
 
 div.innerHTML="";
 
-for(let h=8;h<=18;h++){
+
+for(let h=inicio;h<=fim;h++){
 
 for(let m=0;m<60;m+=30){
 
-let hora =
+let hora=
 h.toString().padStart(2,"0")+":"+
 m.toString().padStart(2,"0");
 
 if(!bloqueado(hora)){
 
-let btn = document.createElement("button");
+let btn=document.createElement("button");
 
-btn.innerText = hora;
+btn.innerText=hora;
 
-btn.onclick = ()=>agendar(hora);
+btn.onclick=()=>formAgendar(hora);
 
 div.appendChild(btn);
 
@@ -142,19 +184,27 @@ div.appendChild(btn);
 
 }
 
+
 function bloqueado(hora){
 
-let atual = converter(hora);
+let data=
+document.getElementById("data").value;
+
+let atual=converter(hora);
 
 for(let ag of agendamentos){
 
-let inicio = converter(ag);
+if(ag.data==data){
 
-let fim = inicio + 150;
+let inicio=converter(ag.hora);
 
-if(atual >= inicio && atual < fim){
+let fim=inicio+150;
+
+if(atual>=inicio && atual<fim){
 
 return true;
+
+}
 
 }
 
@@ -164,27 +214,90 @@ return false;
 
 }
 
-function converter(hora){
 
-let p = hora.split(":");
+function converter(h){
 
-return parseInt(p[0])*60 + parseInt(p[1]);
+let p=h.split(":");
+
+return parseInt(p[0])*60+
+parseInt(p[1]);
 
 }
 
-function agendar(hora){
 
-agendamentos.push(hora);
+function formAgendar(hora){
 
-alert("Agendado às "+hora);
+let nome=prompt("Seu nome:");
+
+if(!nome)return;
+
+let carro=prompt("Nome do carro:");
+
+if(!carro)return;
+
+let data=
+document.getElementById("data").value;
+
+
+agendamentos.push({
+
+nome,
+carro,
+data,
+hora
+
+});
+
+
+localStorage.setItem("agenda",
+JSON.stringify(agendamentos));
+
+
+alert("Agendado com sucesso");
 
 mostrarHorarios();
 
 }
 
-function whatsapp(){
 
-window.open("https://wa.me/5531999999999?text=Olá, quero agendar um horário");
+function abrirAdmin(){
+
+let s=prompt("Senha:");
+
+if(s==senha){
+
+document.getElementById("adminPanel")
+.style.display="block";
+
+mostrarAdmin();
+
+}else{
+
+alert("Senha incorreta");
+
+}
+
+}
+
+
+function mostrarAdmin(){
+
+let div=
+document.getElementById("lista");
+
+div.innerHTML="";
+
+
+for(let ag of agendamentos){
+
+div.innerHTML+=
+
+"Nome: "+ag.nome+"<br>"+
+"Carro: "+ag.carro+"<br>"+
+"Data: "+ag.data+"<br>"+
+"Hora: "+ag.hora+"<br><hr>";
+
+}
 
 }
 
