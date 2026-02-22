@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Lava Jato Ônix</title>
 
 <style>
@@ -10,70 +12,93 @@
 body{
 margin:0;
 font-family:Arial;
-background:#f4f4f4;
+background:#ffffff;
+}
+
+#loading{
+
+position:fixed;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:999;
+
+}
+
+#loading img{
+
+width:150px;
+
+animation: girar 2s infinite linear;
+
+}
+
+@keyframes girar{
+
+0%{transform:rotate(0)}
+100%{transform:rotate(360deg)}
+
 }
 
 header{
+
 background:#d10000;
 color:white;
-padding:20px;
-text-align:center;
-font-size:30px;
-font-weight:bold;
-position:relative;
+padding:15px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+
 }
 
-.menu{
-position:absolute;
-right:20px;
-top:20px;
-cursor:pointer;
-font-size:25px;
+.logo{
+
+display:flex;
+align-items:center;
+gap:10px;
+
 }
 
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
+.logo img{
 
-.card{
-background:white;
-padding:20px;
-margin-top:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-text-align:center;
+width:50px;
+border-radius:50%;
+
 }
 
 button{
+
 background:#d10000;
 color:white;
 border:none;
-padding:12px 25px;
-margin:10px;
-border-radius:8px;
+padding:12px;
+border-radius:10px;
 font-size:16px;
-cursor:pointer;
+margin-top:10px;
+
 }
 
-#agenda{display:none;}
+input,select{
 
-#horarios button{
-display:block;
-margin:10px auto;
-width:200px;
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:10px;
+border:1px solid gray;
+
 }
 
-input{
+.slot{
+
+background:#eee;
 padding:10px;
 margin:5px;
-width:80%;
-}
+border-radius:10px;
 
-#adminPanel{
-display:none;
-text-align:left;
 }
 
 </style>
@@ -82,99 +107,99 @@ text-align:left;
 
 <body>
 
+<div id="loading">
+
+<img src="https://i.imgur.com/yourlogo.png">
+
+<h2>Bem vindo ao Lava Jato Ônix</h2>
+
+</div>
+
 <header>
 
-Lava Jato Ônix
+<div class="logo">
 
-<div class="menu" onclick="abrirAdmin()">
-⋮
+<img src="https://i.imgur.com/yourlogo.png">
+
+<h2>Lava Jato Ônix</h2>
+
 </div>
+
+<button onclick="admin()">⋮</button>
 
 </header>
 
-<div class="container">
+<iframe
+src="https://maps.google.com/maps?q=Rua%20Onix,193%20Santa%20Luzia&t=&z=15&ie=UTF8&iwloc=&output=embed"
+width="100%"
+height="200">
+</iframe>
 
-<div class="card">
+<div style="padding:20px">
 
 <h2>Agendamento</h2>
 
-<button onclick="abrirAgenda()">
-AGENDAR
-</button>
+<input id="nome" placeholder="Seu nome">
 
-<div id="agenda">
+<input id="carro" placeholder="Carro">
+
+<input id="telefone" placeholder="Telefone">
+
+<select id="servico">
+
+<option value="50">Lavagem Simples - R$50</option>
+
+<option value="80">Lavagem Completa - R$80</option>
+
+<option value="120">Lavagem Premium - R$120</option>
+
+</select>
 
 <input type="date" id="data">
 
 <div id="horarios"></div>
 
-</div>
+<button onclick="agendar()">Agendar</button>
 
 </div>
-
-
-<div class="card" id="adminPanel">
-
-<h2>Painel Administração</h2>
-
-<div id="lista"></div>
-
-</div>
-
-</div>
-
 
 <script>
 
-let senha="I8i82022@2023";
+setTimeout(()=>{
 
-let agendamentos=
-JSON.parse(localStorage.getItem("agenda"))||[];
+loading.style.display="none"
 
+},2000)
 
-function abrirAgenda(){
+let agendamentos = JSON.parse(localStorage.getItem("ag")) || []
 
-document.getElementById("agenda").style.display="block";
+let selecionado=""
+
+function gerar(){
+
+let div=document.getElementById("horarios")
+
+div.innerHTML=""
+
+let agora=new Date()
+
+let horaAtual=agora.getHours()+3
+
+for(let h=12;h<=17;h++){
+
+if(h>=horaAtual){
+
+let btn=document.createElement("button")
+
+btn.innerText=h+":00"
+
+btn.onclick=()=>{
+
+selecionado=h
 
 }
 
-
-document.getElementById("data").addEventListener("change", mostrarHorarios);
-
-
-function mostrarHorarios(){
-
-let data=
-new Date(document.getElementById("data").value);
-
-let dia=data.getDay();
-
-let inicio=(dia==6)?8:12;
-
-let fim=17;
-
-let div=document.getElementById("horarios");
-
-div.innerHTML="";
-
-
-for(let h=inicio;h<=fim;h++){
-
-for(let m=0;m<60;m+=30){
-
-let hora=
-h.toString().padStart(2,"0")+":"+
-m.toString().padStart(2,"0");
-
-if(!bloqueado(hora)){
-
-let btn=document.createElement("button");
-
-btn.innerText=hora;
-
-btn.onclick=()=>formAgendar(hora);
-
-div.appendChild(btn);
+div.appendChild(btn)
 
 }
 
@@ -182,120 +207,65 @@ div.appendChild(btn);
 
 }
 
-}
+data.onchange=gerar
 
+function agendar(){
 
-function bloqueado(hora){
+let nome=document.getElementById("nome").value
 
-let data=
-document.getElementById("data").value;
+let carro=document.getElementById("carro").value
 
-let atual=converter(hora);
+let tel=document.getElementById("telefone").value
 
-for(let ag of agendamentos){
+let serv=document.getElementById("servico").value
 
-if(ag.data==data){
+let data=document.getElementById("data").value
 
-let inicio=converter(ag.hora);
+if(!nome||!carro||!tel||!data){
 
-let fim=inicio+150;
+alert("Preencha tudo")
 
-if(atual>=inicio && atual<fim){
-
-return true;
+return
 
 }
-
-}
-
-}
-
-return false;
-
-}
-
-
-function converter(h){
-
-let p=h.split(":");
-
-return parseInt(p[0])*60+
-parseInt(p[1]);
-
-}
-
-
-function formAgendar(hora){
-
-let nome=prompt("Seu nome:");
-
-if(!nome)return;
-
-let carro=prompt("Nome do carro:");
-
-if(!carro)return;
-
-let data=
-document.getElementById("data").value;
-
 
 agendamentos.push({
 
 nome,
+
 carro,
+
+tel,
+
+serv,
+
 data,
-hora
 
-});
+hora:selecionado
 
+})
 
-localStorage.setItem("agenda",
-JSON.stringify(agendamentos));
+localStorage.setItem("ag",JSON.stringify(agendamentos))
 
-
-alert("Agendado com sucesso");
-
-mostrarHorarios();
+alert("Agendado")
 
 }
 
+function admin(){
 
-function abrirAdmin(){
+let senha=prompt("Senha admin")
 
-let s=prompt("Senha:");
+if(senha=="I8i82022@2023"){
 
-if(s==senha){
+let total=0
 
-document.getElementById("adminPanel")
-.style.display="block";
+agendamentos.forEach(a=>{
 
-mostrarAdmin();
+total+=Number(a.serv)
 
-}else{
+})
 
-alert("Senha incorreta");
-
-}
-
-}
-
-
-function mostrarAdmin(){
-
-let div=
-document.getElementById("lista");
-
-div.innerHTML="";
-
-
-for(let ag of agendamentos){
-
-div.innerHTML+=
-
-"Nome: "+ag.nome+"<br>"+
-"Carro: "+ag.carro+"<br>"+
-"Data: "+ag.data+"<br>"+
-"Hora: "+ag.hora+"<br><hr>";
+alert("Faturamento: R$"+total)
 
 }
 
@@ -304,26 +274,5 @@ div.innerHTML+=
 </script>
 
 </body>
+
 </html>
-<header>
-
-<div style="display:flex;align-items:center;gap:10px;">
-
-<img src="https://unavatar.io/instagram/lavajato.onix"
-style="width:50px;height:50px;border-radius:50%;border:2px solid #d10000;">
-
-<div style="font-size:22px;font-weight:bold;color:#d10000;">
-
-Lava Jato Ônix
-
-</div>
-
-</div>
-
-<div class="menu" onclick="loginAdmin()">
-
-⋮
-
-</div>
-
-</header>
