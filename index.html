@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Lava Jato Ônix</title>
 
 <style>
@@ -15,27 +13,76 @@ margin:0;
 background:white;
 }
 
+/* INTRO */
+
+#intro{
+
+position:fixed;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+transition:0.5s;
+
+}
+
+#intro img{
+
+width:150px;
+
+}
+
+#intro h2{
+
+color:#c40000;
+
+}
+
+/* HEADER */
+
 header{
 
-background:white;
-padding:15px;
-box-shadow:0 3px 10px rgba(0,0,0,0.2);
 display:flex;
 align-items:center;
+padding:15px;
+box-shadow:0 3px 10px rgba(0,0,0,0.2);
 
 }
 
 .logo{
+
 width:60px;
+
 }
 
 h1{
+
 color:#c40000;
 margin-left:10px;
+
 }
 
+/* CONTAINER */
+
 .container{
+
 padding:20px;
+
+}
+
+input,button{
+
+width:100%;
+padding:15px;
+margin-top:10px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:16px;
+
 }
 
 button{
@@ -43,33 +90,40 @@ button{
 background:#c40000;
 color:white;
 border:none;
-padding:15px;
-width:100%;
-margin-top:10px;
-border-radius:10px;
+cursor:pointer;
 
 }
 
-input{
-width:100%;
-padding:15px;
-margin-top:10px;
-}
+/* HORARIOS */
 
 .horas button{
 
 width:30%;
 margin:5px;
+background:#eee;
+color:black;
 
 }
+
+.horas button:hover{
+
+background:#c40000;
+color:white;
+
+}
+
+/* CARDS */
 
 .card{
 
 background:#eee;
-padding:10px;
+padding:15px;
 margin-top:10px;
+border-radius:10px;
 
 }
+
+/* ADMIN */
 
 .admin{
 
@@ -84,8 +138,19 @@ cursor:pointer;
 </style>
 
 </head>
-
 <body>
+
+<!-- INTRO -->
+
+<div id="intro">
+
+<img src="LAVA JATO.png">
+
+<h2>Bem vindo ao Lava Jato Ônix</h2>
+
+</div>
+
+<!-- HEADER -->
 
 <header>
 
@@ -97,62 +162,87 @@ cursor:pointer;
 
 <div class="admin" onclick="abrirAdmin()">⋮</div>
 
+<!-- SISTEMA -->
+
 <div class="container">
 
-<input id="nome" placeholder="Nome">
+<input id="nome" placeholder="Seu nome">
 
-<input id="carro" placeholder="Carro">
+<input id="carro" placeholder="Seu carro">
 
 <input id="fone" placeholder="Telefone">
 
 <input type="date" id="data" onchange="gerarHoras()">
 
-<div class="horas" id="horas"></div>
+<div id="horas" class="horas"></div>
 
 <button onclick="agendar()">AGENDAR</button>
 
-<button onclick="abrirRemarcar()">REMARCAR</button>
+<button onclick="remarcarCliente()">REMARCAR</button>
 
-<button onclick="excluir()">EXCLUIR</button>
+<button onclick="excluirCliente()">EXCLUIR</button>
 
-<div id="agendaLista"></div>
+<div id="lista"></div>
 
 </div>
 
 <script>
 
-senha="I8i82022@2023"
+/* INTRO */
 
-horarioSelecionado=""
+window.onload = function(){
 
+setTimeout(()=>{
+
+intro.style.opacity="0"
+
+setTimeout(()=>{
+
+intro.style.display="none"
+
+},500)
+
+},2000)
+
+}
+
+/* SISTEMA */
+
+let senha="I8i82022@2023"
+
+let horarioSelecionado=""
+
+/* GERAR HORAS */
 
 function gerarHoras(){
 
 horas.innerHTML=""
 
-dataEscolhida=data.value
+horarioSelecionado=""
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+let agenda = JSON.parse(localStorage.getItem("agenda")||"[]")
 
-horarios=[
+let dataEscolhida=data.value
+
+let horarios=[
+
 "08:00","08:30","09:00","09:30",
 "10:00","10:30","11:00","11:30",
 "12:00","12:30","13:00","13:30",
 "14:00","14:30","15:00","15:30",
 "16:00","16:30","17:00"
-]
 
+]
 
 horarios.forEach(h=>{
 
-bloqueado=false
-
+let bloqueado=false
 
 agenda.forEach(a=>{
 
 if(a.data==dataEscolhida){
 
-dif=calcularDif(a.hora,h)
+let dif=Math.abs(converter(h)-converter(a.hora))
 
 if(dif<150){
 
@@ -164,7 +254,6 @@ bloqueado=true
 
 })
 
-
 if(!bloqueado){
 
 horas.innerHTML+=
@@ -175,28 +264,25 @@ horas.innerHTML+=
 
 })
 
-}
+if(horas.innerHTML==""){
 
-
-function calcularDif(h1,h2){
-
-t1=converter(h1)
-
-t2=converter(h2)
-
-return Math.abs(t1-t2)
+horas.innerHTML="<p>Sem horários disponíveis</p>"
 
 }
 
+}
+
+/* CONVERTER HORA */
 
 function converter(h){
 
-p=h.split(":")
+let p=h.split(":")
 
 return p[0]*60+parseInt(p[1])
 
 }
 
+/* SELECIONAR */
 
 function selecionarHora(h){
 
@@ -206,50 +292,47 @@ alert("Selecionado: "+h)
 
 }
 
+/* AGENDAR */
 
 function agendar(){
 
 if(horarioSelecionado==""){
 
-alert("Escolha hora")
+alert("Selecione um horário")
 
 return
 
 }
 
-
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
 agenda.push({
 
 nome:nome.value,
-
 carro:carro.value,
-
 fone:fone.value,
-
 data:data.value,
-
 hora:horarioSelecionado
 
 })
 
-
 localStorage.setItem("agenda",JSON.stringify(agenda))
 
-alert("Agendado")
+alert("Agendado com sucesso ✅")
 
 mostrar()
 
+gerarHoras()
+
 }
 
+/* MOSTRAR */
 
 function mostrar(){
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-html=""
+let html=""
 
 agenda.forEach(a=>{
 
@@ -269,23 +352,24 @@ Hora: ${a.hora}
 
 })
 
-agendaLista.innerHTML=html
+lista.innerHTML=html
 
 }
 
 mostrar()
 
+/* EXCLUIR CLIENTE */
 
-function excluir(){
+function excluirCliente(){
 
-n=prompt("nome")
-c=prompt("carro")
-d=prompt("data")
-h=prompt("hora")
+let n=prompt("Nome")
+let c=prompt("Carro")
+let d=prompt("Data")
+let h=prompt("Hora")
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-index=agenda.findIndex(a=>
+let index=agenda.findIndex(a=>
 
 a.nome==n &&
 a.carro==c &&
@@ -296,7 +380,7 @@ a.hora==h
 
 if(index==-1){
 
-alert("erro")
+alert("Dados incorretos")
 
 return
 
@@ -306,23 +390,26 @@ agenda.splice(index,1)
 
 localStorage.setItem("agenda",JSON.stringify(agenda))
 
+alert("Excluído")
+
 mostrar()
+
+gerarHoras()
 
 }
 
+/* REMARCAR CLIENTE */
 
-function abrirRemarcar(){
+function remarcarCliente(){
 
-n=prompt("nome")
-c=prompt("carro")
-d=prompt("data")
-h=prompt("hora")
+let n=prompt("Nome")
+let c=prompt("Carro")
+let d=prompt("Data")
+let h=prompt("Hora")
 
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-
-item=agenda.find(a=>
+let item=agenda.find(a=>
 
 a.nome==n &&
 a.carro==c &&
@@ -333,29 +420,30 @@ a.hora==h
 
 if(!item){
 
-alert("erro")
+alert("Dados incorretos")
 
 return
 
 }
 
-
-novaData=prompt("nova data")
-
-item.data=novaData
+item.data=prompt("Nova data")
+item.hora=prompt("Nova hora")
 
 localStorage.setItem("agenda",JSON.stringify(agenda))
 
-gerarHoras()
+alert("Remarcado")
 
-alert("Escolha nova hora")
+mostrar()
+
+gerarHoras()
 
 }
 
+/* ADMIN */
 
 function abrirAdmin(){
 
-s=prompt("Digite a senha")
+let s=prompt("Senha")
 
 if(s!=senha){
 
@@ -365,58 +453,27 @@ return
 
 }
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-html=`
-
-<h2>Painel Administrador</h2>
-
-<input type="date" onchange="filtrarAdmin(this.value)">
-
-<div id="adminLista"></div>
-
-`
-
-document.body.innerHTML+=html
-
-mostrarAdmin()
-
-}
-
-
-
-function mostrarAdmin(){
-
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-html=""
+let html=""
 
 agenda.forEach((a,i)=>{
 
 html+=`
 
-<div style="background:#eee;
-padding:15px;
-margin:10px;
-border-radius:10px">
+<div class="card">
 
-<b>Nome:</b> ${a.nome}<br>
-
-<b>Carro:</b> ${a.carro}<br>
-
-<b>Telefone:</b> ${a.fone}<br>
-
-<b>Data:</b> ${a.data}<br>
-
-<b>Hora:</b> ${a.hora}<br><br>
-
+Nome: ${a.nome}<br>
+Carro: ${a.carro}<br>
+Telefone: ${a.fone}<br>
+Data: ${a.data}<br>
+Hora: ${a.hora}<br><br>
 
 <button onclick="adminRemarcar(${i})">
 
 Remarcar
 
 </button>
-
 
 <button onclick="adminExcluir(${i})">
 
@@ -430,112 +487,41 @@ Excluir
 
 })
 
-adminLista.innerHTML=html
+lista.innerHTML=html
 
 }
 
-
+/* ADMIN EXCLUIR */
 
 function adminExcluir(i){
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
 agenda.splice(i,1)
 
 localStorage.setItem("agenda",JSON.stringify(agenda))
 
-mostrarAdmin()
+mostrar()
 
-alert("Excluído")
+gerarHoras()
 
 }
 
-
+/* ADMIN REMARCAR */
 
 function adminRemarcar(i){
 
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-novaData=prompt("Nova data")
+agenda[i].data=prompt("Nova data")
 
-novaHora=prompt("Nova hora")
-
-agenda[i].data=novaData
-
-agenda[i].hora=novaHora
+agenda[i].hora=prompt("Nova hora")
 
 localStorage.setItem("agenda",JSON.stringify(agenda))
 
-mostrarAdmin()
+mostrar()
 
-alert("Remarcado")
-
-}
-
-
-
-function filtrarAdmin(data){
-
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-filtrado=agenda.filter(a=>a.data==data)
-
-html=""
-
-filtrado.forEach((a,i)=>{
-
-html+=`
-
-<div style="background:#eee;
-padding:15px;
-margin:10px;
-border-radius:10px">
-
-${a.nome} - ${a.hora}
-
-</div>
-
-`
-
-})
-
-adminLista.innerHTML=html
-
-}
-
-s=prompt("senha")
-
-if(s!=senha){
-
-alert("errado")
-
-return
-
-}
-
-
-agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-texto=""
-
-agenda.forEach(a=>{
-
-texto+=
-
-`
-
-Nome: ${a.nome}
-Carro: ${a.carro}
-Telefone: ${a.fone}
-Data: ${a.data}
-Hora: ${a.hora}
-
-`
-
-})
-
-
-alert(texto)
+gerarHoras()
 
 }
 
