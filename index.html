@@ -10,75 +10,32 @@
 <style>
 
 body{
-margin:0;
 font-family:Arial;
+margin:0;
 background:white;
-}
-
-#intro{
-
-position:fixed;
-width:100%;
-height:100%;
-background:white;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-z-index:9999;
-
-}
-
-.logoIntro{
-
-width:150px;
-animation:gira 2s linear infinite;
-
-}
-
-@keyframes gira{
-
-0%{transform:rotate(0)}
-100%{transform:rotate(360deg)}
-
 }
 
 header{
 
+background:white;
+padding:15px;
+box-shadow:0 3px 10px rgba(0,0,0,0.2);
 display:flex;
 align-items:center;
-padding:15px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
 
 }
 
 .logo{
-
 width:60px;
-
 }
 
 h1{
-
 color:#c40000;
 margin-left:10px;
-
 }
 
 .container{
-
 padding:20px;
-
-}
-
-input,select,button{
-
-width:100%;
-padding:15px;
-margin-top:10px;
-border-radius:10px;
-border:1px solid #ccc;
-
 }
 
 button{
@@ -86,6 +43,23 @@ button{
 background:#c40000;
 color:white;
 border:none;
+padding:15px;
+width:100%;
+margin-top:10px;
+border-radius:10px;
+
+}
+
+input{
+width:100%;
+padding:15px;
+margin-top:10px;
+}
+
+.horas button{
+
+width:30%;
+margin:5px;
 
 }
 
@@ -94,7 +68,6 @@ border:none;
 background:#eee;
 padding:10px;
 margin-top:10px;
-border-radius:10px;
 
 }
 
@@ -114,14 +87,6 @@ cursor:pointer;
 
 <body>
 
-<div id="intro">
-
-<img src="LAVA JATO.png" class="logoIntro">
-
-<h2>Bem vindo ao Lava Jato Ônix</h2>
-
-</div>
-
 <header>
 
 <img src="LAVA JATO.png" class="logo">
@@ -130,7 +95,7 @@ cursor:pointer;
 
 </header>
 
-<div class="admin" onclick="admin()">⋮</div>
+<div class="admin" onclick="abrirAdmin()">⋮</div>
 
 <div class="container">
 
@@ -140,60 +105,123 @@ cursor:pointer;
 
 <input id="fone" placeholder="Telefone">
 
-<input type="date" id="data">
+<input type="date" id="data" onchange="gerarHoras()">
 
-<select id="hora"></select>
+<div class="horas" id="horas"></div>
 
 <button onclick="agendar()">AGENDAR</button>
 
-<button onclick="remarcar()">REMARCAR</button>
+<button onclick="abrirRemarcar()">REMARCAR</button>
 
 <button onclick="excluir()">EXCLUIR</button>
 
-<div id="lista"></div>
+<div id="agendaLista"></div>
 
 </div>
 
 <script>
 
-setTimeout(()=>{
-
-intro.style.display="none"
-
-},2000)
-
-
 senha="I8i82022@2023"
 
+horarioSelecionado=""
 
-function carregarHoras(){
 
-hora.innerHTML=""
+function gerarHoras(){
 
-agora=new Date()
+horas.innerHTML=""
 
-limite=agora.getHours()+3
+dataEscolhida=data.value
 
-for(i=12;i<=17;i++){
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-if(i>=limite){
+horarios=[
+"08:00","08:30","09:00","09:30",
+"10:00","10:30","11:00","11:30",
+"12:00","12:30","13:00","13:30",
+"14:00","14:30","15:00","15:30",
+"16:00","16:30","17:00"
+]
 
-hora.innerHTML+=`<option>${i}:00</option>`
+
+horarios.forEach(h=>{
+
+bloqueado=false
+
+
+agenda.forEach(a=>{
+
+if(a.data==dataEscolhida){
+
+dif=calcularDif(a.hora,h)
+
+if(dif<150){
+
+bloqueado=true
 
 }
 
 }
 
+})
+
+
+if(!bloqueado){
+
+horas.innerHTML+=
+
+`<button onclick="selecionarHora('${h}')">${h}</button>`
+
 }
 
-carregarHoras()
+})
+
+}
+
+
+function calcularDif(h1,h2){
+
+t1=converter(h1)
+
+t2=converter(h2)
+
+return Math.abs(t1-t2)
+
+}
+
+
+function converter(h){
+
+p=h.split(":")
+
+return p[0]*60+parseInt(p[1])
+
+}
+
+
+function selecionarHora(h){
+
+horarioSelecionado=h
+
+alert("Selecionado: "+h)
+
+}
 
 
 function agendar(){
 
-lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+if(horarioSelecionado==""){
 
-lista.push({
+alert("Escolha hora")
+
+return
+
+}
+
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+
+agenda.push({
 
 nome:nome.value,
 
@@ -203,11 +231,14 @@ fone:fone.value,
 
 data:data.value,
 
-hora:hora.value
+hora:horarioSelecionado
 
 })
 
-localStorage.setItem("agenda",JSON.stringify(lista))
+
+localStorage.setItem("agenda",JSON.stringify(agenda))
+
+alert("Agendado")
 
 mostrar()
 
@@ -216,24 +247,20 @@ mostrar()
 
 function mostrar(){
 
-lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
 html=""
 
-lista.forEach(a=>{
+agenda.forEach(a=>{
 
 html+=`
 
 <div class="card">
 
 Nome: ${a.nome}<br>
-
 Carro: ${a.carro}<br>
-
 Telefone: ${a.fone}<br>
-
 Data: ${a.data}<br>
-
 Hora: ${a.hora}
 
 </div>
@@ -242,133 +269,273 @@ Hora: ${a.hora}
 
 })
 
-listaDiv.innerHTML=html
+agendaLista.innerHTML=html
 
 }
-
 
 mostrar()
-
-
-function remarcar(){
-
-n=prompt("nome")
-
-c=prompt("carro")
-
-d=prompt("data")
-
-h=prompt("hora")
-
-
-lista=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-
-item=lista.find(
-
-a=>a.nome==n &&
-
-a.carro==c &&
-
-a.data==d &&
-
-a.hora==h
-
-)
-
-
-if(!item){
-
-alert("ERRO dados incorretos")
-
-return
-
-}
-
-
-item.data=prompt("nova data")
-
-item.hora=prompt("nova hora")
-
-
-localStorage.setItem("agenda",JSON.stringify(lista))
-
-mostrar()
-
-}
 
 
 function excluir(){
 
 n=prompt("nome")
-
 c=prompt("carro")
-
 d=prompt("data")
-
 h=prompt("hora")
 
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+index=agenda.findIndex(a=>
 
-
-index=lista.findIndex(
-
-a=>a.nome==n &&
-
+a.nome==n &&
 a.carro==c &&
-
 a.data==d &&
-
 a.hora==h
 
 )
 
-
 if(index==-1){
 
-alert("ERRO dados incorretos")
+alert("erro")
 
 return
 
 }
 
+agenda.splice(index,1)
 
-lista.splice(index,1)
-
-localStorage.setItem("agenda",JSON.stringify(lista))
+localStorage.setItem("agenda",JSON.stringify(agenda))
 
 mostrar()
 
 }
 
 
-function admin(){
+function abrirRemarcar(){
 
-s=prompt("senha")
+n=prompt("nome")
+c=prompt("carro")
+d=prompt("data")
+h=prompt("hora")
 
-if(s!=senha){
 
-alert("senha errada")
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+
+item=agenda.find(a=>
+
+a.nome==n &&
+a.carro==c &&
+a.data==d &&
+a.hora==h
+
+)
+
+if(!item){
+
+alert("erro")
 
 return
 
 }
 
 
-lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+novaData=prompt("nova data")
 
-fat=lista.length*50
+item.data=novaData
+
+localStorage.setItem("agenda",JSON.stringify(agenda))
+
+gerarHoras()
+
+alert("Escolha nova hora")
+
+}
 
 
-alert(
+function abrirAdmin(){
 
-"Agendamentos: "+lista.length+
+s=prompt("Digite a senha")
 
-"\nFaturamento: "+fat
+if(s!=senha){
 
-)
+alert("Senha errada")
 
+return
+
+}
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+html=`
+
+<h2>Painel Administrador</h2>
+
+<input type="date" onchange="filtrarAdmin(this.value)">
+
+<div id="adminLista"></div>
+
+`
+
+document.body.innerHTML+=html
+
+mostrarAdmin()
+
+}
+
+
+
+function mostrarAdmin(){
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+html=""
+
+agenda.forEach((a,i)=>{
+
+html+=`
+
+<div style="background:#eee;
+padding:15px;
+margin:10px;
+border-radius:10px">
+
+<b>Nome:</b> ${a.nome}<br>
+
+<b>Carro:</b> ${a.carro}<br>
+
+<b>Telefone:</b> ${a.fone}<br>
+
+<b>Data:</b> ${a.data}<br>
+
+<b>Hora:</b> ${a.hora}<br><br>
+
+
+<button onclick="adminRemarcar(${i})">
+
+Remarcar
+
+</button>
+
+
+<button onclick="adminExcluir(${i})">
+
+Excluir
+
+</button>
+
+</div>
+
+`
+
+})
+
+adminLista.innerHTML=html
+
+}
+
+
+
+function adminExcluir(i){
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+agenda.splice(i,1)
+
+localStorage.setItem("agenda",JSON.stringify(agenda))
+
+mostrarAdmin()
+
+alert("Excluído")
+
+}
+
+
+
+function adminRemarcar(i){
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+novaData=prompt("Nova data")
+
+novaHora=prompt("Nova hora")
+
+agenda[i].data=novaData
+
+agenda[i].hora=novaHora
+
+localStorage.setItem("agenda",JSON.stringify(agenda))
+
+mostrarAdmin()
+
+alert("Remarcado")
+
+}
+
+
+
+function filtrarAdmin(data){
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+filtrado=agenda.filter(a=>a.data==data)
+
+html=""
+
+filtrado.forEach((a,i)=>{
+
+html+=`
+
+<div style="background:#eee;
+padding:15px;
+margin:10px;
+border-radius:10px">
+
+${a.nome} - ${a.hora}
+
+</div>
+
+`
+
+})
+
+adminLista.innerHTML=html
+
+}
+
+s=prompt("senha")
+
+if(s!=senha){
+
+alert("errado")
+
+return
+
+}
+
+
+agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+texto=""
+
+agenda.forEach(a=>{
+
+texto+=
+
+`
+
+Nome: ${a.nome}
+Carro: ${a.carro}
+Telefone: ${a.fone}
+Data: ${a.data}
+Hora: ${a.hora}
+
+`
+
+})
+
+
+alert(texto)
 
 }
 
