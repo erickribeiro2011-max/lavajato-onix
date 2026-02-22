@@ -10,52 +10,58 @@
 <style>
 
 body{
-
 margin:0;
 font-family:Arial;
-background:linear-gradient(120deg,#ffffff,#f1f1f1);
-animation:fade 1s;
+background:white;
+}
+
+#intro{
+
+position:fixed;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:9999;
 
 }
 
-@keyframes fade{
+.logoIntro{
 
-from{opacity:0}
-to{opacity:1}
+width:150px;
+animation:gira 2s linear infinite;
+
+}
+
+@keyframes gira{
+
+0%{transform:rotate(0)}
+100%{transform:rotate(360deg)}
 
 }
 
 header{
 
-background:white;
-padding:15px;
 display:flex;
 align-items:center;
-gap:10px;
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
+padding:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
 
 }
 
 .logo{
 
 width:60px;
-border-radius:50%;
 
 }
 
 h1{
 
-margin:0;
 color:#c40000;
-
-}
-
-.insta{
-
-margin-left:auto;
-color:#c40000;
-font-weight:bold;
-cursor:pointer;
+margin-left:10px;
 
 }
 
@@ -65,7 +71,7 @@ padding:20px;
 
 }
 
-input,select{
+input,select,button{
 
 width:100%;
 padding:15px;
@@ -80,37 +86,23 @@ button{
 background:#c40000;
 color:white;
 border:none;
-padding:15px;
-border-radius:10px;
-font-size:16px;
-margin-top:10px;
-width:100%;
-cursor:pointer;
-transition:0.3s;
-
-}
-
-button:hover{
-
-transform:scale(1.05);
 
 }
 
 .card{
 
-background:white;
-padding:15px;
-border-radius:10px;
+background:#eee;
+padding:10px;
 margin-top:10px;
-animation:fade 0.5s;
+border-radius:10px;
 
 }
 
 .admin{
 
-position:fixed;
-top:10px;
-right:10px;
+position:absolute;
+right:20px;
+top:20px;
 font-size:25px;
 cursor:pointer;
 
@@ -122,73 +114,53 @@ cursor:pointer;
 
 <body>
 
+<div id="intro">
+
+<img src="LAVA JATO.png" class="logoIntro">
+
+<h2>Bem vindo ao Lava Jato Ônix</h2>
+
+</div>
 
 <header>
 
-<img src="./LAVA%20JATO.png" class="logo">
+<img src="LAVA JATO.png" class="logo">
 
 <h1>Lava Jato Ônix</h1>
 
-
-<div class="insta"
-
-onclick="window.open('https://instagram.com/lavajato.onix')"
-
->
-
-@lavajato.onix
-
-</div>
-
-
 </header>
-
 
 <div class="admin" onclick="admin()">⋮</div>
 
-
 <div class="container">
 
+<input id="nome" placeholder="Nome">
 
-<h2>Agendar</h2>
-
-
-<input id="nome" placeholder="Seu nome">
-
-
-<input id="carro" placeholder="Seu carro">
-
+<input id="carro" placeholder="Carro">
 
 <input id="fone" placeholder="Telefone">
 
-
 <input type="date" id="data">
-
 
 <select id="hora"></select>
 
+<button onclick="agendar()">AGENDAR</button>
 
-<button onclick="agendar()">
+<button onclick="remarcar()">REMARCAR</button>
 
-AGENDAR
-
-</button>
-
-
-<button onclick="abrirRemarcar()">
-
-REMARCAR HORÁRIO
-
-</button>
-
+<button onclick="excluir()">EXCLUIR</button>
 
 <div id="lista"></div>
 
-
 </div>
 
-
 <script>
+
+setTimeout(()=>{
+
+intro.style.display="none"
+
+},2000)
 
 
 senha="I8i82022@2023"
@@ -196,28 +168,23 @@ senha="I8i82022@2023"
 
 function carregarHoras(){
 
-let select=hora
+hora.innerHTML=""
 
-select.innerHTML=""
+agora=new Date()
 
+limite=agora.getHours()+3
 
-let agora=new Date()
+for(i=12;i<=17;i++){
 
-let limite=agora.getHours()+3
+if(i>=limite){
 
-
-for(let h=12;h<=17;h++){
-
-if(h>=limite){
-
-select.innerHTML+=`<option>${h}:00</option>`
+hora.innerHTML+=`<option>${i}:00</option>`
 
 }
 
 }
 
 }
-
 
 carregarHoras()
 
@@ -225,7 +192,6 @@ carregarHoras()
 function agendar(){
 
 lista=JSON.parse(localStorage.getItem("agenda")||"[]")
-
 
 lista.push({
 
@@ -241,9 +207,7 @@ hora:hora.value
 
 })
 
-
 localStorage.setItem("agenda",JSON.stringify(lista))
-
 
 mostrar()
 
@@ -254,20 +218,19 @@ function mostrar(){
 
 lista=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-
 html=""
 
-
-lista.forEach((a)=>{
-
+lista.forEach(a=>{
 
 html+=`
 
 <div class="card">
 
-Cliente: ${a.nome}<br>
+Nome: ${a.nome}<br>
 
 Carro: ${a.carro}<br>
+
+Telefone: ${a.fone}<br>
 
 Data: ${a.data}<br>
 
@@ -279,12 +242,7 @@ Hora: ${a.hora}
 
 })
 
-
-lista.innerHTML=html
-
-
-document.getElementById("lista").innerHTML=html
-
+listaDiv.innerHTML=html
 
 }
 
@@ -292,14 +250,15 @@ document.getElementById("lista").innerHTML=html
 mostrar()
 
 
-function abrirRemarcar(){
+function remarcar(){
 
+n=prompt("nome")
 
-nomeR=prompt("Seu nome exato")
+c=prompt("carro")
 
-carroR=prompt("Seu carro")
+d=prompt("data")
 
-horaR=prompt("Hora marcada")
+h=prompt("hora")
 
 
 lista=JSON.parse(localStorage.getItem("agenda")||"[]")
@@ -307,50 +266,97 @@ lista=JSON.parse(localStorage.getItem("agenda")||"[]")
 
 item=lista.find(
 
-a=>a.nome==nomeR &&
+a=>a.nome==n &&
 
-a.carro==carroR &&
+a.carro==c &&
 
-a.hora==horaR
+a.data==d &&
+
+a.hora==h
 
 )
 
 
 if(!item){
 
-alert("não encontrado")
+alert("ERRO dados incorretos")
 
 return
 
 }
 
 
-nova=prompt("Nova hora")
+item.data=prompt("nova data")
 
-
-item.hora=nova
+item.hora=prompt("nova hora")
 
 
 localStorage.setItem("agenda",JSON.stringify(lista))
 
-
 mostrar()
 
+}
+
+
+function excluir(){
+
+n=prompt("nome")
+
+c=prompt("carro")
+
+d=prompt("data")
+
+h=prompt("hora")
+
+
+lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+
+index=lista.findIndex(
+
+a=>a.nome==n &&
+
+a.carro==c &&
+
+a.data==d &&
+
+a.hora==h
+
+)
+
+
+if(index==-1){
+
+alert("ERRO dados incorretos")
+
+return
+
+}
+
+
+lista.splice(index,1)
+
+localStorage.setItem("agenda",JSON.stringify(lista))
+
+mostrar()
 
 }
 
 
 function admin(){
 
-
 s=prompt("senha")
 
+if(s!=senha){
 
-if(s!=senha)return
+alert("senha errada")
+
+return
+
+}
 
 
 lista=JSON.parse(localStorage.getItem("agenda")||"[]")
-
 
 fat=lista.length*50
 
@@ -359,16 +365,14 @@ alert(
 
 "Agendamentos: "+lista.length+
 
-"\nFaturamento: R$"+fat
+"\nFaturamento: "+fat
 
 )
 
 
 }
 
-
 </script>
-
 
 </body>
 </html>
