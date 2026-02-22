@@ -12,91 +12,77 @@
 body{
 margin:0;
 font-family:Arial;
-background:#ffffff;
-}
-
-#loading{
-
-position:fixed;
-width:100%;
-height:100%;
-background:white;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-z-index:999;
-
-}
-
-#loading img{
-
-width:150px;
-
-animation: girar 2s infinite linear;
-
-}
-
-@keyframes girar{
-
-0%{transform:rotate(0)}
-100%{transform:rotate(360deg)}
-
+background:#f4f4f4;
 }
 
 header{
 
-background:#d10000;
-color:white;
+background:white;
 padding:15px;
 display:flex;
 align-items:center;
-justify-content:space-between;
-
-}
-
-.logo{
-
-display:flex;
-align-items:center;
 gap:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.2);
 
 }
 
-.logo img{
+header img{
 
-width:50px;
-border-radius:50%;
+width:60px;
+
+}
+
+header h1{
+
+margin:0;
+color:#c40000;
+
+}
+
+.container{
+
+padding:20px;
 
 }
 
 button{
 
-background:#d10000;
+background:#c40000;
 color:white;
 border:none;
-padding:12px;
+padding:15px;
 border-radius:10px;
-font-size:16px;
+font-size:18px;
+width:100%;
 margin-top:10px;
 
 }
 
-input,select{
+input, select{
 
 width:100%;
-padding:12px;
+padding:15px;
 margin-top:10px;
 border-radius:10px;
-border:1px solid gray;
+border:1px solid #ccc;
 
 }
 
-.slot{
+.admin{
 
-background:#eee;
-padding:10px;
-margin:5px;
+position:fixed;
+top:10px;
+right:10px;
+font-size:25px;
+cursor:pointer;
+
+}
+
+.card{
+
+background:white;
+padding:15px;
+margin-top:10px;
 border-radius:10px;
 
 }
@@ -107,99 +93,73 @@ border-radius:10px;
 
 <body>
 
-<div id="loading">
-
-<img src="https://i.imgur.com/LAVA JATO.png">
-
-<h2>Bem vindo ao Lava Jato Ônix</h2>
-
-</div>
 
 <header>
 
-<div class="logo">
+<img src="LAVA JATO.png">
 
-<img src="https://i.imgur.com/yourlogo.png">
-
-<h2>Lava Jato Ônix</h2>
-
-</div>
-
-<button onclick="admin()">⋮</button>
+<h1>Lava Jato Ônix</h1>
 
 </header>
 
-<iframe
-src="https://maps.google.com/maps?q=Rua%20Onix,193%20Santa%20Luzia&t=&z=15&ie=UTF8&iwloc=&output=embed"
-width="100%"
-height="200">
-</iframe>
 
-<div style="padding:20px">
+<div class="admin" onclick="admin()">⋮</div>
+
+
+<div class="container">
+
 
 <h2>Agendamento</h2>
 
+
 <input id="nome" placeholder="Seu nome">
 
-<input id="carro" placeholder="Carro">
 
-<input id="telefone" placeholder="Telefone">
+<input id="carro" placeholder="Seu carro">
 
-<select id="servico">
 
-<option value="50">Lavagem Simples - R$50</option>
+<input id="fone" placeholder="Telefone">
 
-<option value="80">Lavagem Completa - R$80</option>
-
-<option value="120">Lavagem Premium - R$120</option>
-
-</select>
 
 <input type="date" id="data">
 
-<div id="horarios"></div>
+
+<select id="hora">
+
+</select>
+
 
 <button onclick="agendar()">Agendar</button>
 
+
+<div id="lista"></div>
+
+
 </div>
+
 
 <script>
 
-setTimeout(()=>{
 
-loading.style.display="none"
+senha="I8i82022@2023"
 
-},2000)
 
-let agendamentos = JSON.parse(localStorage.getItem("ag")) || []
+function carregarHoras(){
 
-let selecionado=""
+let select=document.getElementById("hora")
 
-function gerar(){
-
-let div=document.getElementById("horarios")
-
-div.innerHTML=""
+select.innerHTML=""
 
 let agora=new Date()
 
 let horaAtual=agora.getHours()+3
 
+
 for(let h=12;h<=17;h++){
 
 if(h>=horaAtual){
 
-let btn=document.createElement("button")
-
-btn.innerText=h+":00"
-
-btn.onclick=()=>{
-
-selecionado=h
-
-}
-
-div.appendChild(btn)
+select.innerHTML+=`<option>${h}:00</option>`
 
 }
 
@@ -207,72 +167,193 @@ div.appendChild(btn)
 
 }
 
-data.onchange=gerar
+
+carregarHoras()
+
 
 function agendar(){
 
-let nome=document.getElementById("nome").value
+let nome=nomeInput()
 
-let carro=document.getElementById("carro").value
+let carro=carroInput()
 
-let tel=document.getElementById("telefone").value
+let fone=foneInput()
 
-let serv=document.getElementById("servico").value
+let data=dataInput()
 
-let data=document.getElementById("data").value
+let hora=horaInput()
 
-if(!nome||!carro||!tel||!data){
 
-alert("Preencha tudo")
+if(!nome||!carro||!fone){
+
+alert("preencha tudo")
 
 return
 
 }
 
-agendamentos.push({
+
+lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+
+lista.push({
 
 nome,
-
 carro,
-
-tel,
-
-serv,
-
+fone,
 data,
-
-hora:selecionado
+hora
 
 })
 
-localStorage.setItem("ag",JSON.stringify(agendamentos))
 
-alert("Agendado")
+localStorage.setItem("agenda",JSON.stringify(lista))
+
+
+mostrar()
+
 
 }
+
+
+function mostrar(){
+
+lista=JSON.parse(localStorage.getItem("agenda")||"[]")
+
+
+html=""
+
+
+lista.forEach((a,i)=>{
+
+
+html+=`
+
+<div class="card">
+
+${a.nome}<br>
+
+${a.carro}<br>
+
+${a.data}<br>
+
+${a.hora}
+
+<br>
+
+<button onclick="remarcar(${i})">
+
+Remarcar
+
+</button>
+
+<button onclick="excluir(${i})">
+
+Excluir
+
+</button>
+
+</div>
+
+`
+
+})
+
+
+document.getElementById("lista").innerHTML=html
+
+
+}
+
+
+mostrar()
+
+
+function excluir(i){
+
+lista=JSON.parse(localStorage.getItem("agenda"))
+
+lista.splice(i,1)
+
+localStorage.setItem("agenda",JSON.stringify(lista))
+
+mostrar()
+
+}
+
+
+function remarcar(i){
+
+let nova=prompt("nova hora")
+
+lista=JSON.parse(localStorage.getItem("agenda"))
+
+lista[i].hora=nova
+
+localStorage.setItem("agenda",JSON.stringify(lista))
+
+mostrar()
+
+}
+
 
 function admin(){
 
-let senha=prompt("Senha admin")
+let s=prompt("senha")
 
-if(senha=="I8i82022@2023"){
+if(s!=senha)return
 
-let total=0
 
-agendamentos.forEach(a=>{
+lista=JSON.parse(localStorage.getItem("agenda")||"[]")
 
-total+=Number(a.serv)
 
-})
+fat=lista.length*50
 
-alert("Faturamento: R$"+total)
+
+alert(
+
+"Agendamentos: "+lista.length+
+
+"\nFaturamento: R$"+fat
+
+)
 
 }
 
+
+function nomeInput(){
+
+return document.getElementById("nome").value
+
 }
+
+function carroInput(){
+
+return document.getElementById("carro").value
+
+}
+
+function foneInput(){
+
+return document.getElementById("fone").value
+
+}
+
+function dataInput(){
+
+return document.getElementById("data").value
+
+}
+
+function horaInput(){
+
+return document.getElementById("hora").value
+
+}
+
 
 </script>
 
-</body>
 
+</body>
 </html>
