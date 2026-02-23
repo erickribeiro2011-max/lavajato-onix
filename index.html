@@ -158,7 +158,6 @@ getDocs
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
 const firebaseConfig = {
 
 apiKey: "AIzaSyBzgEYfUA5TZ1QdXg85yzCbrabQaK2Ax0w",
@@ -199,15 +198,19 @@ return p[0]*60+parseInt(p[1])
 
 }
 
+
+// FUNÇÃO CORRIGIDA
 function horariosFuncionamento(dataEscolhida){
 
-let dia = new Date(dataEscolhida).getDay()
+let dia = new Date(dataEscolhida + "T00:00:00").getDay()
 
-if(dia==2){
+// terça fechado
+if(dia == 2){
 return []
 }
 
-if(dia==6){
+// sábado normal
+if(dia == 6){
 
 return [
 "08:00","08:30","09:00","09:30",
@@ -219,6 +222,7 @@ return [
 
 }
 
+// domingo a sexta só depois 12:30
 return [
 
 "12:30","13:00","13:30",
@@ -228,6 +232,8 @@ return [
 ]
 
 }
+
+
 
 window.gerarHoras = async function(){
 
@@ -286,6 +292,8 @@ horas.innerHTML+=
 
 }
 
+
+
 window.selecionarHora=function(h){
 
 horarioSelecionado=h
@@ -293,6 +301,8 @@ horarioSelecionado=h
 alert("Selecionado: "+h)
 
 }
+
+
 
 window.agendar = async function(){
 
@@ -318,6 +328,8 @@ alert("Agendado com sucesso ✅")
 gerarHoras()
 
 }
+
+
 
 window.abrirAdmin = async function(){
 
