@@ -10,7 +10,7 @@
 body{
 font-family:Arial;
 margin:0;
-background:white;
+background:#f4f6f8;
 }
 
 #intro{
@@ -38,7 +38,8 @@ header{
 display:flex;
 align-items:center;
 padding:15px;
-box-shadow:0 3px 10px rgba(0,0,0,0.2);
+background:white;
+box-shadow:0 3px 15px rgba(0,0,0,0.2);
 }
 
 .logo{
@@ -55,54 +56,101 @@ padding:20px;
 }
 
 input,button{
+
 width:100%;
 padding:15px;
 margin-top:10px;
 border-radius:10px;
 border:1px solid #ccc;
 font-size:16px;
+
 }
 
 button{
-background:#c40000;
+
+background:linear-gradient(45deg,#c40000,#ff0000);
 color:white;
 border:none;
 cursor:pointer;
+font-weight:bold;
+letter-spacing:1px;
+transition:0.3s;
+
+}
+
+button:hover{
+
+transform:scale(1.05);
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+
 }
 
 .horas button{
+
 width:30%;
 margin:5px;
 background:#eee;
 color:black;
+
 }
 
 .horas button:hover{
+
 background:#c40000;
 color:white;
+
 }
 
 .card{
-background:#eee;
-padding:15px;
-margin-top:10px;
-border-radius:10px;
+
+background:white;
+padding:20px;
+margin-top:15px;
+border-radius:15px;
+
+box-shadow:0 4px 15px rgba(0,0,0,0.15);
+
+border-left:6px solid #c40000;
+
+transition:0.3s;
+
+}
+
+.card:hover{
+
+transform:scale(1.02);
+
+box-shadow:0 6px 20px rgba(0,0,0,0.25);
+
 }
 
 .admin{
+
 position:absolute;
 right:20px;
 top:20px;
 font-size:25px;
 cursor:pointer;
+
 }
 
 .labelTitulo{
+
 font-weight:bold;
 margin-top:15px;
 display:block;
 color:#c40000;
 font-size:18px;
+
+}
+
+.adminPainelTitulo{
+
+font-size:22px;
+font-weight:bold;
+margin-top:20px;
+color:#c40000;
+
 }
 
 </style>
@@ -116,8 +164,11 @@ font-size:18px;
 </div>
 
 <header>
+
 <img src="LAVA JATO.png" class="logo">
+
 <h1>Lava Jato Ônix</h1>
+
 </header>
 
 <div class="admin" onclick="abrirAdmin()">⋮</div>
@@ -125,22 +176,32 @@ font-size:18px;
 <div class="container">
 
 <input id="nome" placeholder="Seu nome">
+
 <input id="carro" placeholder="Seu carro">
+
 <input id="fone" placeholder="Telefone">
 
 <label class="labelTitulo">
+
 📅 Selecione o dia:
+
 </label>
 
 <input type="date" id="data" onchange="gerarHoras()">
 
 <label class="labelTitulo">
+
 🕒 Horários disponíveis:
+
 </label>
 
 <div id="horas" class="horas"></div>
 
-<button onclick="agendar()">AGENDAR</button>
+<button onclick="agendar()">
+
+AGENDAR
+
+</button>
 
 <div id="lista"></div>
 
@@ -151,11 +212,14 @@ font-size:18px;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
+
 getFirestore,
 collection,
 addDoc,
 getDocs
+
 }
+
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -170,9 +234,11 @@ appId: "1:1019152811175:web:aa54caaa90843084740782"
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 let senha="I8i82022@2023"
+
 let horarioSelecionado=""
 
 window.onload = function(){
@@ -194,35 +260,35 @@ intro.style.display="none"
 function converter(h){
 
 let p=h.split(":")
+
 return p[0]*60+parseInt(p[1])
 
 }
 
-
-// FUNÇÃO CORRIGIDA
 function horariosFuncionamento(dataEscolhida){
 
 let dia = new Date(dataEscolhida + "T00:00:00").getDay()
 
-// terça fechado
-if(dia == 2){
+if(dia==2){
+
 return []
+
 }
 
-// sábado normal
-if(dia == 6){
+if(dia==6){
 
 return [
+
 "08:00","08:30","09:00","09:30",
 "10:00","10:30","11:00","11:30",
 "12:00","12:30","13:00","13:30",
 "14:00","14:30","15:00","15:30",
 "16:00","16:30","17:00"
+
 ]
 
 }
 
-// domingo a sexta só depois 12:30
 return [
 
 "12:30","13:00","13:30",
@@ -233,11 +299,10 @@ return [
 
 }
 
-
-
 window.gerarHoras = async function(){
 
 horas.innerHTML=""
+
 horarioSelecionado=""
 
 let dataEscolhida=data.value
@@ -257,6 +322,7 @@ let horarios=horariosFuncionamento(dataEscolhida)
 if(horarios.length==0){
 
 horas.innerHTML="<b>Fechado neste dia</b>"
+
 return
 
 }
@@ -284,6 +350,7 @@ bloqueado=true
 if(!bloqueado){
 
 horas.innerHTML+=
+
 `<button onclick="selecionarHora('${h}')">${h}</button>`
 
 }
@@ -291,8 +358,6 @@ horas.innerHTML+=
 })
 
 }
-
-
 
 window.selecionarHora=function(h){
 
@@ -302,13 +367,12 @@ alert("Selecionado: "+h)
 
 }
 
-
-
 window.agendar = async function(){
 
 if(horarioSelecionado==""){
 
 alert("Selecione horário")
+
 return
 
 }
@@ -329,8 +393,6 @@ gerarHoras()
 
 }
 
-
-
 window.abrirAdmin = async function(){
 
 let s=prompt("Senha")
@@ -338,11 +400,20 @@ let s=prompt("Senha")
 if(s!=senha){
 
 alert("Senha errada")
+
 return
 
 }
 
-let html=""
+let html=`
+
+<div class="adminPainelTitulo">
+
+PAINEL ADMINISTRATIVO
+
+</div>
+
+`
 
 const querySnapshot = await getDocs(collection(db,"agendamentos"))
 
@@ -354,11 +425,15 @@ html+=`
 
 <div class="card">
 
-Nome: ${a.nome}<br>
-Carro: ${a.carro}<br>
-Telefone: ${a.fone}<br>
-Data: ${a.data}<br>
-Hora: ${a.hora}<br>
+👤 Nome: ${a.nome}<br><br>
+
+🚗 Carro: ${a.carro}<br><br>
+
+📞 Telefone: ${a.fone}<br><br>
+
+📅 Data: ${a.data}<br><br>
+
+🕒 Hora: ${a.hora}
 
 </div>
 
