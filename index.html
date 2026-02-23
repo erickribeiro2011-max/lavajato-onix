@@ -203,14 +203,10 @@ function horariosFuncionamento(dataEscolhida){
 
 let dia = new Date(dataEscolhida).getDay()
 
-// terça fechado
 if(dia==2){
-
 return []
-
 }
 
-// sábado
 if(dia==6){
 
 return [
@@ -223,7 +219,6 @@ return [
 
 }
 
-// outros dias 12:30+
 return [
 
 "12:30","13:00","13:30",
@@ -243,7 +238,7 @@ let dataEscolhida=data.value
 
 let agenda=[]
 
-const querySnapshot = await getDocs(collection(db,"agenda"))
+const querySnapshot = await getDocs(collection(db,"agendamentos"))
 
 querySnapshot.forEach(doc => {
 
@@ -308,7 +303,7 @@ return
 
 }
 
-await addDoc(collection(db,"agenda"),{
+await addDoc(collection(db,"agendamentos"),{
 
 nome:nome.value,
 carro:carro.value,
@@ -337,7 +332,7 @@ return
 
 let html=""
 
-const querySnapshot = await getDocs(collection(db,"agenda"))
+const querySnapshot = await getDocs(collection(db,"agendamentos"))
 
 querySnapshot.forEach((docSnap)=>{
 
