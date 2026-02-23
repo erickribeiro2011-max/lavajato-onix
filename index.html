@@ -97,6 +97,14 @@ font-size:25px;
 cursor:pointer;
 }
 
+.labelTitulo{
+font-weight:bold;
+margin-top:15px;
+display:block;
+color:#c40000;
+font-size:18px;
+}
+
 </style>
 
 </head>
@@ -120,9 +128,20 @@ cursor:pointer;
 <input id="carro" placeholder="Seu carro">
 <input id="fone" placeholder="Telefone">
 
+
+<label class="labelTitulo">
+📅 Selecione o dia do agendamento:
+</label>
+
 <input type="date" id="data" onchange="gerarHoras()">
 
+
+<label class="labelTitulo">
+🕒 Selecione o horário disponível:
+</label>
+
 <div id="horas" class="horas"></div>
+
 
 <button onclick="agendar()">AGENDAR</button>
 
@@ -143,9 +162,7 @@ setTimeout(()=>{
 intro.style.opacity="0"
 
 setTimeout(()=>{
-
 intro.style.display="none"
-
 },500)
 
 },2000)
@@ -182,9 +199,7 @@ if(a.data==dataEscolhida){
 let dif=Math.abs(converter(h)-converter(a.hora))
 
 if(dif<150){
-
 bloqueado=true
-
 }
 
 }
@@ -315,10 +330,8 @@ function abrirAdmin(){
 let s=prompt("Senha")
 
 if(s!=senha){
-
 alert("Senha errada")
 return
-
 }
 
 localStorage.setItem("admin","true")
@@ -383,9 +396,7 @@ abrirAdmin()
 }
 
 window.onbeforeunload=function(){
-
 localStorage.removeItem("admin")
-
 }
 
 </script>
