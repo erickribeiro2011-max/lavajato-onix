@@ -10,7 +10,7 @@
 body{
 font-family:Arial;
 margin:0;
-background:#f4f6f8;
+background:white;
 }
 
 #intro{
@@ -38,8 +38,7 @@ header{
 display:flex;
 align-items:center;
 padding:15px;
-background:white;
-box-shadow:0 3px 15px rgba(0,0,0,0.2);
+box-shadow:0 3px 10px rgba(0,0,0,0.2);
 }
 
 .logo{
@@ -56,49 +55,32 @@ padding:20px;
 }
 
 input,button{
-
 width:100%;
 padding:15px;
 margin-top:10px;
 border-radius:10px;
 border:1px solid #ccc;
 font-size:16px;
-
 }
 
 button{
-
 background:linear-gradient(45deg,#c40000,#ff0000);
 color:white;
 border:none;
 cursor:pointer;
 font-weight:bold;
-letter-spacing:1px;
 transition:0.3s;
-
 }
 
 button:hover{
-
 transform:scale(1.05);
-box-shadow:0 5px 15px rgba(0,0,0,0.3);
-
 }
 
 .horas button{
-
 width:30%;
 margin:5px;
 background:#eee;
 color:black;
-
-}
-
-.horas button:hover{
-
-background:#c40000;
-color:white;
-
 }
 
 .card{
@@ -112,36 +94,22 @@ box-shadow:0 4px 15px rgba(0,0,0,0.15);
 
 border-left:6px solid #c40000;
 
-transition:0.3s;
-
-}
-
-.card:hover{
-
-transform:scale(1.02);
-
-box-shadow:0 6px 20px rgba(0,0,0,0.25);
-
 }
 
 .admin{
-
 position:absolute;
 right:20px;
 top:20px;
 font-size:25px;
 cursor:pointer;
-
 }
 
 .labelTitulo{
-
 font-weight:bold;
 margin-top:15px;
 display:block;
 color:#c40000;
 font-size:18px;
-
 }
 
 .adminPainelTitulo{
@@ -164,11 +132,8 @@ color:#c40000;
 </div>
 
 <header>
-
 <img src="LAVA JATO.png" class="logo">
-
 <h1>Lava Jato Ônix</h1>
-
 </header>
 
 <div class="admin" onclick="abrirAdmin()">⋮</div>
@@ -182,25 +147,19 @@ color:#c40000;
 <input id="fone" placeholder="Telefone">
 
 <label class="labelTitulo">
-
 📅 Selecione o dia:
-
 </label>
 
 <input type="date" id="data" onchange="gerarHoras()">
 
 <label class="labelTitulo">
-
 🕒 Horários disponíveis:
-
 </label>
 
 <div id="horas" class="horas"></div>
 
 <button onclick="agendar()">
-
 AGENDAR
-
 </button>
 
 <div id="lista"></div>
@@ -209,26 +168,35 @@ AGENDAR
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
 
 getFirestore,
 collection,
 addDoc,
-getDocs
+getDocs,
+doc,
+deleteDoc,
+updateDoc
 
 }
-
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 const firebaseConfig = {
 
 apiKey: "AIzaSyBzgEYfUA5TZ1QdXg85yzCbrabQaK2Ax0w",
+
 authDomain: "lava-jato-onix.firebaseapp.com",
+
 projectId: "lava-jato-onix",
+
 storageBucket: "lava-jato-onix.firebasestorage.app",
+
 messagingSenderId: "1019152811175",
+
 appId: "1:1019152811175:web:aa54caaa90843084740782"
 
 };
@@ -241,7 +209,7 @@ let senha="I8i82022@2023"
 
 let horarioSelecionado=""
 
-window.onload = function(){
+window.onload=function(){
 
 setTimeout(()=>{
 
@@ -267,7 +235,7 @@ return p[0]*60+parseInt(p[1])
 
 function horariosFuncionamento(dataEscolhida){
 
-let dia = new Date(dataEscolhida + "T00:00:00").getDay()
+let dia=new Date(dataEscolhida+"T00:00:00").getDay()
 
 if(dia==2){
 
@@ -280,9 +248,13 @@ if(dia==6){
 return [
 
 "08:00","08:30","09:00","09:30",
+
 "10:00","10:30","11:00","11:30",
+
 "12:00","12:30","13:00","13:30",
+
 "14:00","14:30","15:00","15:30",
+
 "16:00","16:30","17:00"
 
 ]
@@ -292,14 +264,16 @@ return [
 return [
 
 "12:30","13:00","13:30",
+
 "14:00","14:30","15:00","15:30",
+
 "16:00","16:30","17:00"
 
 ]
 
 }
 
-window.gerarHoras = async function(){
+window.gerarHoras=async function(){
 
 horas.innerHTML=""
 
@@ -309,9 +283,9 @@ let dataEscolhida=data.value
 
 let agenda=[]
 
-const querySnapshot = await getDocs(collection(db,"agendamentos"))
+const querySnapshot=await getDocs(collection(db,"agendamentos"))
 
-querySnapshot.forEach(doc => {
+querySnapshot.forEach(doc=>{
 
 agenda.push(doc.data())
 
@@ -367,7 +341,7 @@ alert("Selecionado: "+h)
 
 }
 
-window.agendar = async function(){
+window.agendar=async function(){
 
 if(horarioSelecionado==""){
 
@@ -380,20 +354,24 @@ return
 await addDoc(collection(db,"agendamentos"),{
 
 nome:nome.value,
+
 carro:carro.value,
+
 fone:fone.value,
+
 data:data.value,
+
 hora:horarioSelecionado
 
 })
 
-alert("Agendado com sucesso ✅")
+alert("Agendado com sucesso")
 
 gerarHoras()
 
 }
 
-window.abrirAdmin = async function(){
+window.abrirAdmin=async function(){
 
 let s=prompt("Senha")
 
@@ -405,35 +383,45 @@ return
 
 }
 
-let html=`
+let html=`<div class="adminPainelTitulo">
 
-<div class="adminPainelTitulo">
+PAINEL ADMIN
 
-PAINEL ADMINISTRATIVO
+</div>`
 
-</div>
-
-`
-
-const querySnapshot = await getDocs(collection(db,"agendamentos"))
+const querySnapshot=await getDocs(collection(db,"agendamentos"))
 
 querySnapshot.forEach((docSnap)=>{
 
 let a=docSnap.data()
 
+let id=docSnap.id
+
 html+=`
 
 <div class="card">
 
-👤 Nome: ${a.nome}<br><br>
+Nome: ${a.nome}<br>
 
-🚗 Carro: ${a.carro}<br><br>
+Carro: ${a.carro}<br>
 
-📞 Telefone: ${a.fone}<br><br>
+Telefone: ${a.fone}<br>
 
-📅 Data: ${a.data}<br><br>
+Data: ${a.data}<br>
 
-🕒 Hora: ${a.hora}
+Hora: ${a.hora}<br><br>
+
+<button onclick="adminRemarcar('${id}')">
+
+Remarcar
+
+</button>
+
+<button onclick="adminExcluir('${id}')">
+
+Excluir
+
+</button>
 
 </div>
 
@@ -442,6 +430,32 @@ html+=`
 })
 
 lista.innerHTML=html
+
+}
+
+window.adminExcluir=async function(id){
+
+await deleteDoc(doc(db,"agendamentos",id))
+
+abrirAdmin()
+
+}
+
+window.adminRemarcar=async function(id){
+
+let novaData=prompt("Nova data")
+
+let novaHora=prompt("Nova hora")
+
+await updateDoc(doc(db,"agendamentos",id),{
+
+data:novaData,
+
+hora:novaHora
+
+})
+
+abrirAdmin()
 
 }
 
