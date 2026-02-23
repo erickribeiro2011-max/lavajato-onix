@@ -128,32 +128,53 @@ font-size:18px;
 <input id="carro" placeholder="Seu carro">
 <input id="fone" placeholder="Telefone">
 
-
 <label class="labelTitulo">
-📅 Selecione o dia do agendamento:
+📅 Selecione o dia:
 </label>
 
 <input type="date" id="data" onchange="gerarHoras()">
 
-
 <label class="labelTitulo">
-🕒 Selecione o horário disponível:
+🕒 Horários disponíveis:
 </label>
 
 <div id="horas" class="horas"></div>
 
-
 <button onclick="agendar()">AGENDAR</button>
-
-<button onclick="remarcarCliente()">REMARCAR</button>
-
-<button onclick="excluirCliente()">EXCLUIR</button>
 
 <div id="lista"></div>
 
 </div>
 
-<script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyBzgEYfUA5TZ1QdXg85yzCbrabQaK2Ax0w",
+authDomain: "lava-jato-onix.firebaseapp.com",
+projectId: "lava-jato-onix",
+storageBucket: "lava-jato-onix.firebasestorage.app",
+messagingSenderId: "1019152811175",
+appId: "1:1019152811175:web:aa54caaa90843084740782"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let senha="I8i82022@2023"
+let horarioSelecionado=""
 
 window.onload = function(){
 
@@ -162,31 +183,82 @@ setTimeout(()=>{
 intro.style.opacity="0"
 
 setTimeout(()=>{
+
 intro.style.display="none"
+
 },500)
 
 },2000)
 
 }
 
-let senha="I8i82022@2023"
-let horarioSelecionado=""
+function converter(h){
 
-function gerarHoras(){
+let p=h.split(":")
+return p[0]*60+parseInt(p[1])
 
-horas.innerHTML=""
-horarioSelecionado=""
+}
 
-let agenda = JSON.parse(localStorage.getItem("agenda")||"[]")
-let dataEscolhida=data.value
+function horariosFuncionamento(dataEscolhida){
 
-let horarios=[
+let dia = new Date(dataEscolhida).getDay()
+
+// terça fechado
+if(dia==2){
+
+return []
+
+}
+
+// sábado
+if(dia==6){
+
+return [
 "08:00","08:30","09:00","09:30",
 "10:00","10:30","11:00","11:30",
 "12:00","12:30","13:00","13:30",
 "14:00","14:30","15:00","15:30",
 "16:00","16:30","17:00"
 ]
+
+}
+
+// outros dias 12:30+
+return [
+
+"12:30","13:00","13:30",
+"14:00","14:30","15:00","15:30",
+"16:00","16:30","17:00"
+
+]
+
+}
+
+window.gerarHoras = async function(){
+
+horas.innerHTML=""
+horarioSelecionado=""
+
+let dataEscolhida=data.value
+
+let agenda=[]
+
+const querySnapshot = await getDocs(collection(db,"agenda"))
+
+querySnapshot.forEach(doc => {
+
+agenda.push(doc.data())
+
+})
+
+let horarios=horariosFuncionamento(dataEscolhida)
+
+if(horarios.length==0){
+
+horas.innerHTML="<b>Fechado neste dia</b>"
+return
+
+}
 
 horarios.forEach(h=>{
 
@@ -199,7 +271,9 @@ if(a.data==dataEscolhida){
 let dif=Math.abs(converter(h)-converter(a.hora))
 
 if(dif<150){
+
 bloqueado=true
+
 }
 
 }
@@ -215,36 +289,26 @@ horas.innerHTML+=
 
 })
 
-if(horas.innerHTML==""){
-horas.innerHTML="<p>Sem horários disponíveis</p>"
 }
 
-}
-
-function converter(h){
-
-let p=h.split(":")
-return p[0]*60+parseInt(p[1])
-
-}
-
-function selecionarHora(h){
+window.selecionarHora=function(h){
 
 horarioSelecionado=h
+
 alert("Selecionado: "+h)
 
 }
 
-function agendar(){
+window.agendar = async function(){
 
 if(horarioSelecionado==""){
-alert("Selecione um horário")
+
+alert("Selecione horário")
 return
+
 }
 
-let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-agenda.push({
+await addDoc(collection(db,"agenda"),{
 
 nome:nome.value,
 carro:carro.value,
@@ -254,93 +318,30 @@ hora:horarioSelecionado
 
 })
 
-localStorage.setItem("agenda",JSON.stringify(agenda))
-
 alert("Agendado com sucesso ✅")
 
 gerarHoras()
 
 }
 
-function excluirCliente(){
-
-let n=prompt("Nome")
-let c=prompt("Carro")
-let d=prompt("Data")
-let h=prompt("Hora")
-
-let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-let index=agenda.findIndex(a=>
-a.nome==n &&
-a.carro==c &&
-a.data==d &&
-a.hora==h
-)
-
-if(index==-1){
-alert("Dados incorretos")
-return
-}
-
-agenda.splice(index,1)
-
-localStorage.setItem("agenda",JSON.stringify(agenda))
-
-alert("Excluído")
-
-gerarHoras()
-
-}
-
-function remarcarCliente(){
-
-let n=prompt("Nome")
-let c=prompt("Carro")
-let d=prompt("Data")
-let h=prompt("Hora")
-
-let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-let item=agenda.find(a=>
-a.nome==n &&
-a.carro==c &&
-a.data==d &&
-a.hora==h
-)
-
-if(!item){
-alert("Dados incorretos")
-return
-}
-
-item.data=prompt("Nova data")
-item.hora=prompt("Nova hora")
-
-localStorage.setItem("agenda",JSON.stringify(agenda))
-
-alert("Remarcado")
-
-gerarHoras()
-
-}
-
-function abrirAdmin(){
+window.abrirAdmin = async function(){
 
 let s=prompt("Senha")
 
 if(s!=senha){
+
 alert("Senha errada")
 return
+
 }
-
-localStorage.setItem("admin","true")
-
-let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
 
 let html=""
 
-agenda.forEach((a,i)=>{
+const querySnapshot = await getDocs(collection(db,"agenda"))
+
+querySnapshot.forEach((docSnap)=>{
+
+let a=docSnap.data()
 
 html+=`
 
@@ -350,15 +351,7 @@ Nome: ${a.nome}<br>
 Carro: ${a.carro}<br>
 Telefone: ${a.fone}<br>
 Data: ${a.data}<br>
-Hora: ${a.hora}<br><br>
-
-<button onclick="adminRemarcar(${i})">
-Remarcar
-</button>
-
-<button onclick="adminExcluir(${i})">
-Excluir
-</button>
+Hora: ${a.hora}<br>
 
 </div>
 
@@ -368,35 +361,6 @@ Excluir
 
 lista.innerHTML=html
 
-}
-
-function adminExcluir(i){
-
-let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-agenda.splice(i,1)
-
-localStorage.setItem("agenda",JSON.stringify(agenda))
-
-abrirAdmin()
-
-}
-
-function adminRemarcar(i){
-
-let agenda=JSON.parse(localStorage.getItem("agenda")||"[]")
-
-agenda[i].data=prompt("Nova data")
-agenda[i].hora=prompt("Nova hora")
-
-localStorage.setItem("agenda",JSON.stringify(agenda))
-
-abrirAdmin()
-
-}
-
-window.onbeforeunload=function(){
-localStorage.removeItem("admin")
 }
 
 </script>
